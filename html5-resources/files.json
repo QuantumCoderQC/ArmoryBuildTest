@@ -468,6 +468,16 @@
 			"types": []
 		},
 		{
+			"name": "font_default",
+			"files": [
+				"font_default.ttf"
+			],
+			"file_sizes": [
+				22544
+			],
+			"type": "font"
+		},
+		{
 			"name": "painter_colored_frag",
 			"files": [
 				"painter-colored-webgl2.frag.essl"
