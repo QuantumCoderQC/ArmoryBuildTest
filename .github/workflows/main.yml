@@ -33,3 +33,8 @@ jobs:
       - name: Build examples
         run: |
           haxe ArmoryBuildFilesGH/build-examples.hxml
+      - name: Deploy gh-pages
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          branch: gh-pages
+          folder: example/build_main
