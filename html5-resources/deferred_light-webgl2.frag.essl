@@ -30,10 +30,11 @@ highp vec2 octahedronWrap(highp vec2 v)
     return (vec2(1.0) - abs(v.yx)) * vec2((v.x >= 0.0) ? 1.0 : (-1.0), (v.y >= 0.0) ? 1.0 : (-1.0));
 }
 
-void unpackFloatInt16(highp float val, out highp float f, inout uint i)
+void unpackFloatInt16(highp float val, out highp float f, out uint i)
 {
-    i = uint(int((val / 0.06250095367431640625) + 1.525902189314365386962890625e-05));
-    f = clamp((((-0.06250095367431640625) * float(i)) + val) / 0.06248569488525390625, 0.0, 1.0);
+    uint bitsValue = uint(val);
+    i = bitsValue >> 12u;
+    f = float(bitsValue & 4294905855u) / 4095.0;
 }
 
 highp vec2 unpackFloat2(highp float f)
@@ -129,27 +130,27 @@ highp float lpToDepth(inout highp vec3 lp, highp vec2 lightProj_1)
 highp float PCFCube(highp samplerCubeShadow shadowMapCube, highp vec3 lp, inout highp vec3 ml, highp float bias, highp vec2 lightProj_1, highp vec3 n)
 {
     highp vec3 param = lp;
-    highp float _431 = lpToDepth(param, lightProj_1);
-    highp float compare = _431 - (bias * 1.5);
+    highp float _428 = lpToDepth(param, lightProj_1);
+    highp float compare = _428 - (bias * 1.5);
     ml += ((n * bias) * 20.0);
-    highp vec4 _447 = vec4(ml, compare);
-    highp float result = texture(shadowMapCube, vec4(_447.xyz, _447.w));
-    highp vec4 _459 = vec4(ml + vec3(0.001000000047497451305389404296875), compare);
-    result += texture(shadowMapCube, vec4(_459.xyz, _459.w));
-    highp vec4 _473 = vec4(ml + vec3(-0.001000000047497451305389404296875, 0.001000000047497451305389404296875, 0.001000000047497451305389404296875), compare);
-    result += texture(shadowMapCube, vec4(_473.xyz, _473.w));
-    highp vec4 _486 = vec4(ml + vec3(0.001000000047497451305389404296875, -0.001000000047497451305389404296875, 0.001000000047497451305389404296875), compare);
-    result += texture(shadowMapCube, vec4(_486.xyz, _486.w));
-    highp vec4 _499 = vec4(ml + vec3(0.001000000047497451305389404296875, 0.001000000047497451305389404296875, -0.001000000047497451305389404296875), compare);
-    result += texture(shadowMapCube, vec4(_499.xyz, _499.w));
-    highp vec4 _512 = vec4(ml + vec3(-0.001000000047497451305389404296875, -0.001000000047497451305389404296875, 0.001000000047497451305389404296875), compare);
-    result += texture(shadowMapCube, vec4(_512.xyz, _512.w));
-    highp vec4 _525 = vec4(ml + vec3(0.001000000047497451305389404296875, -0.001000000047497451305389404296875, -0.001000000047497451305389404296875), compare);
-    result += texture(shadowMapCube, vec4(_525.xyz, _525.w));
-    highp vec4 _538 = vec4(ml + vec3(-0.001000000047497451305389404296875, 0.001000000047497451305389404296875, -0.001000000047497451305389404296875), compare);
-    result += texture(shadowMapCube, vec4(_538.xyz, _538.w));
-    highp vec4 _551 = vec4(ml + vec3(-0.001000000047497451305389404296875), compare);
-    result += texture(shadowMapCube, vec4(_551.xyz, _551.w));
+    highp vec4 _444 = vec4(ml, compare);
+    highp float result = texture(shadowMapCube, vec4(_444.xyz, _444.w));
+    highp vec4 _456 = vec4(ml + vec3(0.001000000047497451305389404296875), compare);
+    result += texture(shadowMapCube, vec4(_456.xyz, _456.w));
+    highp vec4 _470 = vec4(ml + vec3(-0.001000000047497451305389404296875, 0.001000000047497451305389404296875, 0.001000000047497451305389404296875), compare);
+    result += texture(shadowMapCube, vec4(_470.xyz, _470.w));
+    highp vec4 _483 = vec4(ml + vec3(0.001000000047497451305389404296875, -0.001000000047497451305389404296875, 0.001000000047497451305389404296875), compare);
+    result += texture(shadowMapCube, vec4(_483.xyz, _483.w));
+    highp vec4 _496 = vec4(ml + vec3(0.001000000047497451305389404296875, 0.001000000047497451305389404296875, -0.001000000047497451305389404296875), compare);
+    result += texture(shadowMapCube, vec4(_496.xyz, _496.w));
+    highp vec4 _509 = vec4(ml + vec3(-0.001000000047497451305389404296875, -0.001000000047497451305389404296875, 0.001000000047497451305389404296875), compare);
+    result += texture(shadowMapCube, vec4(_509.xyz, _509.w));
+    highp vec4 _522 = vec4(ml + vec3(0.001000000047497451305389404296875, -0.001000000047497451305389404296875, -0.001000000047497451305389404296875), compare);
+    result += texture(shadowMapCube, vec4(_522.xyz, _522.w));
+    highp vec4 _535 = vec4(ml + vec3(-0.001000000047497451305389404296875, 0.001000000047497451305389404296875, -0.001000000047497451305389404296875), compare);
+    result += texture(shadowMapCube, vec4(_535.xyz, _535.w));
+    highp vec4 _548 = vec4(ml + vec3(-0.001000000047497451305389404296875), compare);
+    result += texture(shadowMapCube, vec4(_548.xyz, _548.w));
     return result / 9.0;
 }
 
@@ -167,8 +168,8 @@ highp vec3 sampleLight(highp vec3 p, highp vec3 n, highp vec3 v, highp float dot
     if (receiveShadow)
     {
         highp vec3 param = -l;
-        highp float _609 = PCFCube(shadowMapPoint[0], ld, param, bias, lightProj, n);
-        direct *= _609;
+        highp float _606 = PCFCube(shadowMapPoint[0], ld, param, bias, lightProj, n);
+        direct *= _606;
     }
     return direct;
 }
@@ -178,16 +179,16 @@ void main()
     highp vec4 g0 = textureLod(gbuffer0, texCoord, 0.0);
     highp vec3 n;
     n.z = (1.0 - abs(g0.x)) - abs(g0.y);
-    highp vec2 _640;
+    highp vec2 _637;
     if (n.z >= 0.0)
     {
-        _640 = g0.xy;
+        _637 = g0.xy;
     }
     else
     {
-        _640 = octahedronWrap(g0.xy);
+        _637 = octahedronWrap(g0.xy);
     }
-    n = vec3(_640.x, _640.y, n.z);
+    n = vec3(_637.x, _637.y, n.z);
     n = normalize(n);
     highp float roughness = g0.z;
     highp float param;
@@ -212,13 +213,19 @@ void main()
     envl += (((prefilteredColor * ((f0 * envBRDF.x) + vec3(envBRDF.y))) * 1.5) * occspec.y);
     envl *= (envmapStrength * occspec.x);
     fragColor = vec4(envl.x, envl.y, envl.z, fragColor.w);
-    highp vec3 _791 = fragColor.xyz * textureLod(ssaotex, texCoord, 0.0).x;
-    fragColor = vec4(_791.x, _791.y, _791.z, fragColor.w);
+    highp vec3 _788 = fragColor.xyz * textureLod(ssaotex, texCoord, 0.0).x;
+    fragColor = vec4(_788.x, _788.y, _788.z, fragColor.w);
+    if (matid == 1u)
+    {
+        highp vec3 _799 = fragColor.xyz + g1.xyz;
+        fragColor = vec4(_799.x, _799.y, _799.z, fragColor.w);
+        albedo = vec3(0.0);
+    }
     int param_2 = 0;
     highp float param_3 = pointBias;
     bool param_4 = true;
-    highp vec3 _816 = fragColor.xyz + sampleLight(p, n, v, dotNV, pointPos, pointCol, albedo, roughness, occspec.y, f0, param_2, param_3, param_4);
-    fragColor = vec4(_816.x, _816.y, _816.z, fragColor.w);
+    highp vec3 _824 = fragColor.xyz + sampleLight(p, n, v, dotNV, pointPos, pointCol, albedo, roughness, occspec.y, f0, param_2, param_3, param_4);
+    fragColor = vec4(_824.x, _824.y, _824.z, fragColor.w);
     fragColor.w = 1.0;
 }
 
