@@ -19,13 +19,14 @@ jobs:
     - uses: actions/checkout@v2
       with:
         ref: gh-pages
-    - uses: yeslayla/butler-publish-itchio-action@master
+    - uses: KikimoraGames/itch-publish@v0.0.3
       with:
-         BUTLER_CREDENTIALS: ${{ secrets.ITCH_IO_API_KEY }}
-         CHANNEL: HTML
-         ITCH_GAME: armory-build-test
-         ITCH_USER: quantumcoderqc
-         PACKAGE: html5
+         butlerApiKey: ${{secrets.ITCH_IO_API_KEY}}
+         gameData: html5
+         itchUsername: quantumcoderqc
+         itchGameId: armory-build-test
+         buildChannel: html
+         buildNumber: 1
       
       
     
